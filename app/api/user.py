@@ -3,6 +3,7 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
+from app.security.dependencies import current_user
 from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
 from fastapi import APIRouter, Depends, HTTPException
@@ -18,6 +19,7 @@ router = APIRouter(
 )
 
 
+
 @router.post("/create", response_model=UserResponse)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = register(user, db)
@@ -25,7 +27,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/all", response_model=list[UserResponse])
-def get_all_users(db: Session = Depends(get_db)):
+def get_all_users(db: Session = Depends(get_db),current: User = Depends(current_user)):
     return getalluser(db)
 
 
@@ -39,5 +41,5 @@ def update_user(id: str, user: UserCreate, db: Session = Depends(get_db)):
     return updateuser(id, user, db)
 
 @router.delete("/{id}")
-def delete_user(id: str, db: Session = Depends(get_db)):
+def delete_user(id: str, db: Session = Depends(get_db),current_user: User = Depends(current_user)):
     return deleteuser(id, db)
